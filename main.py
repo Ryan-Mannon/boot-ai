@@ -17,16 +17,23 @@ response = client.chat.completions.create(
     messages=[
         {
             "role": "user",
-            "content": "Hello",
+            "content": "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.",
         }
     ],
 )
 
 def main():
+    #Error handling
     if api_key == None:
         raise RuntimeError("key not found")
-    
+    if response.usage == None:
+        raise RuntimeError("usage can't be None. Failed API request")
+
+
+    print(f"Prompt tokens: {response.usage.prompt_tokens}")
+    print(f"Response tokens: {response.usage.completion_tokens}")
     print(response.choices[0].message.content)
+
 
 
 if __name__ == "__main__":
