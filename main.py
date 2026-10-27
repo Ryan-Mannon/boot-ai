@@ -1,4 +1,5 @@
 import os
+import json
 import argparse
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -36,6 +37,8 @@ def main():
         tools=available_functions
     )
 
+
+
     #Error handling 
     if response.usage == None:
         raise RuntimeError("usage can't be None. Failed API request")
@@ -45,9 +48,14 @@ def main():
         print(f"Prompt tokens: {response.usage.prompt_tokens}")
         print(f"Response tokens: {response.usage.completion_tokens}")
 
-    print(response.choices[0].message.content)
 
-
+    message = response.choices[0].message
+    if message.tool_calls != None:
+        for tool_call in message.tool_calls:
+            function_args = json.loads(tool_call.function.arguments or "{}")
+            print(f"Calling function: {tool_call.function.name}({function_args})")
+    else:
+        print(message.content)
 
 if __name__ == "__main__":
     main()
