@@ -11,10 +11,10 @@ def get_file_content(working_directory: str, file_path: str) -> str:
         valid_target_dir = os.path.commonpath([working_dir_abs, target_dir]) == working_dir_abs
 
         if not valid_target_dir:
-            raise Exception(f'Error: Cannot read "{file_path}" as it is outside the permitted working directory')
+            return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
 
         if not os.path.isfile(target_dir):
-            raise Exception(f'Error: File not found or is not a regular file: "{file_path}"')
+            return f'Error: File not found or is not a regular file: "{file_path}"'
 
 
         #Read the file and return its contents as a string
