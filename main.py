@@ -55,6 +55,7 @@ def main():
             function_args = json.loads(tool_call.function.arguments or "{}")
             print(f"Calling function: {tool_call.function.name}({function_args})")
     else:
+        print("Response:")
         print(message.content)
 
 if __name__ == "__main__":
