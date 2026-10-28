@@ -28,5 +28,9 @@ def call_function(tool_call, verbose: bool = False) -> dict:
     else:
         print(f" - Calling function: {function_name}")
     
-
+    return {
+    "role": "tool",
+    "tool_call_id": tool_call.id,
+    "content": f"Error: Unknown function: {function_name}",
+}
 
