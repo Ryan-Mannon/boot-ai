@@ -1,11 +1,19 @@
 import json
 
-from collections.abc import callable
+from collections.abc import Callable
 
+#schema
 from functions.get_files_info import schema_get_files_info
 from functions.get_file_content import schema_get_file_content
 from functions.run_python_file import schema_run_python_file
 from functions.write_file import schema_write_file
+
+#functions
+from functions.get_files_info import get_files_info
+from functions.get_file_content import get_file_content
+from functions.run_python_file import run_python_file
+from functions.write_file import write_file
+
 
 function_map: dict[str, Callable[..., str]] = {
     "get_file_content": get_file_content,
@@ -36,7 +44,7 @@ def call_function(tool_call, verbose: bool = False) -> dict:
         function_args["working_directory"] = "./calculator"
         return {
             "role": "tool",
-            "tool_call_id": tool_call_id,
+            "tool_call_id": tool_call.id,
             "content": run_function(**function_args)
         }
 
