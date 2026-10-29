@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 import argparse
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -22,7 +23,6 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 
-
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": args.user_prompt},
@@ -33,43 +33,45 @@ def main():
         api_key=api_key,
     )
 
-    response = client.chat.completions.create(
-        model="openrouter/free",
-        messages=messages,
-        tools=available_functions
-    )
+    for _ in range(20):
+       
+
+        response = client.chat.completions.create(
+            model="openrouter/free",
+            messages=messages,
+            tools=available_functions
+        )
+
+        #Error handling 
+        if response.usage == None:
+            raise RuntimeError("usage can't be None. Failed API request")
 
 
-
-    #Error handling 
-    if response.usage == None:
-        raise RuntimeError("usage can't be None. Failed API request")
-
-
-
-    if args.verbose:
-        print(f"User prompt: {args.user_prompt}")
-        print(f"Prompt tokens: {response.usage.prompt_tokens}")
-        print(f"Response tokens: {response.usage.completion_tokens}")
+        if args.verbose:
+            print(f"User prompt: {args.user_prompt}")
+            print(f"Prompt tokens: {response.usage.prompt_tokens}")
+            print(f"Response tokens: {response.usage.completion_tokens}")
 
 
-    message = response.choices[0].message
-    result_message = {}
-    if message.tool_calls != None:
-        for tool_call in message.tool_calls:
-            result_message = call_function(tool_call, args.verbose)
-
-            #Error handling
-            if result_message["content"] == "":
-                raise Exception("Content should not be empty")
-
-            if args.verbose:
-                print(f"-> {result_message['content']}")
-
-
+        message = response.choices[0].message
+        messages.append(message)
+        result_message = {}
+        if message.tool_calls != None:
+            for tool_call in message.tool_calls:
+                result_message = call_function(tool_call, args.verbose)
+                #Error handling
+                if result_message["content"] == "":
+                    raise Exception("Content should not be empty")
+                if args.verbose:
+                    print(f"-> {result_message['content']}")
+                messages.append(result_message)
+        else:
+            print("Final Response:")
+            print(message.content)
+            break
     else:
-        print("Response:")
-        print(message.content)
+        print("Loop Exited due to max loop cycles")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
